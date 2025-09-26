@@ -1,34 +1,34 @@
-# Use .NET 9 runtime as base
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM debian:bookworm-slim
 
-# Create app directory
-WORKDIR /app
-
-# Expose port
-ENV GPSS_PORT=13579
-EXPOSE ${GPSS_PORT}
-
-# Install unzip & curl
-RUN apt-get update && apt-get install -y unzip curl ca-certificates \
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl unzip ca-certificates libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Environment variables
-ENV GPSS_HOST=0.0.0.0
-ENV RELEASE_URL="https://github.com/FlagBrew/local-gpss/releases/latest/download/linux64.zip"
-ENV DATA_DIR=/app/data
+# Set working directory
+WORKDIR /app
 
-# Create data dir for persistent storage
+# Environment variables
+ENV GPSS_PORT=13579
+ENV GPSS_HOST=0.0.0.0
+ENV DATA_DIR=/app/data
+ENV RELEASE_URL="https://github.com/FlagBrew/local-gpss/releases/latest/download/linux64.zip"
+
+# Create persistent data directory
 RUN mkdir -p ${DATA_DIR}
 
-# Download and extract local-gpss
-RUN curl -fsSL "${RELEASE_URL}" -o /tmp/local-gpss.zip \
+# Download and extract all files from linux64 folder
+RUN curl -fsSL ${RELEASE_URL} -o /tmp/local-gpss.zip \
     && unzip /tmp/local-gpss.zip -d /tmp/local-gpss-extract \
-    && mv /tmp/local-gpss-extract/linux64/local-gpss ./local-gpss \
+    && cp -r /tmp/local-gpss-extract/linux64/* ./ \
     && chmod +x ./local-gpss \
     && rm -rf /tmp/local-gpss.zip /tmp/local-gpss-extract
 
-# Persistent volume for data
+# Make data directory a persistent volume
 VOLUME ["${DATA_DIR}"]
 
-# Start the server
+# Expose the port
+EXPOSE ${GPSS_PORT}
+
+# Run the executable
 ENTRYPOINT ["./local-gpss", "--urls=http://0.0.0.0:13579/", "--data-dir=/app/data"]
