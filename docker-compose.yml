@@ -3,13 +3,11 @@
     build: .
     image: local-gpss:latest
     container_name: local-gpss
-    restart: unless-stopped
+    restart: always
     ports:
-      - "13579:8080"
+      - "13579:13579"
     volumes:
-      - local-gpss-data:/app/data
+      - local-gpss-data:/app
 
 volumes:
   local-gpss-data: {}
-
-

@@ -1,8 +1,7 @@
 # Base runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 13579
 
 # Create non-root user (UID 1000)
 RUN useradd -m -u 1000 appuser
