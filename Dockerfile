@@ -34,9 +34,6 @@ WORKDIR /app
 # Copy published files from build
 COPY --from=publish /app/publish .
 
-# Create default local-gpss.json in the same folder as the DLL
-RUN echo '{"ip":"0.0.0.0","port":13579}' > /app/local-gpss.json
-
 # Ensure appuser owns the folder
 RUN chown -R 1000:1000 /app
 
@@ -47,4 +44,6 @@ USER 1000
 VOLUME ["/app"]
 
 # Run the DLL
-ENTRYPOINT ["dotnet", "local-gpss.dll"]
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
