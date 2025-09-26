@@ -34,16 +34,17 @@ WORKDIR /app
 # Copy published files from build
 COPY --from=publish /app/publish .
 
-# Ensure appuser owns the folder
+
+# Copy entrypoint script and make it executable (as root)
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 RUN chown -R 1000:1000 /app
 
 # Switch to non-root user
-USER 1000
+USER appuser
 
 # Make the folder a Docker volume so data persists
 VOLUME ["/app"]
 
 # Run the DLL
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
