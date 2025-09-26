@@ -1,15 +1,11 @@
 ﻿services:
   local-gpss:
-    build:
-      context: .
+    build: .
     image: local-gpss:latest
     container_name: local-gpss
     restart: unless-stopped
     ports:
-      - "13579:13579"
-    environment:
-      - GPSS_HOST=0.0.0.0
-      - GPSS_PORT=13579
+      - "13579:8080"
     volumes:
       - local-gpss-data:/app/data
 
