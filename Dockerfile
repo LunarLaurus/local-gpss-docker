@@ -36,14 +36,14 @@ WORKDIR /app
 # Copy published files from build
 COPY --from=publish /app/publish .
 
-# Create persistent data folder
-RUN mkdir -p /app/data
+# Create default local-gpss.json in the same folder as the DLL
+RUN echo '{"ip":"0.0.0.0","port":13579}' > /app/local-gpss.json
 
-# Ensure appuser owns data folder
-RUN chown -R appuser:appuser /app/data
+# Ensure the non-root user owns the folder so runtime can write data
+RUN chown -R appuser:appuser /app
 
-# Make it a Docker volume
-VOLUME ["/app/data"]
+# Make the folder a Docker volume so data persists
+VOLUME ["/app"]
 
 # Run the DLL as non-root user
 ENTRYPOINT ["dotnet", "local-gpss.dll"]
