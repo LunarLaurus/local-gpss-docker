@@ -1,4 +1,4 @@
-services:
+﻿services:
   local-gpss:
     build:
       context: .
@@ -15,3 +15,4 @@ services:
 
 volumes:
   local-gpss-data: {}
+
