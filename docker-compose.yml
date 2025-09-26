@@ -1,14 +1,13 @@
+version: "3.8"
+
 services:
   local-gpss:
-    build:
-      context: .
-      args:
-        RELEASE_URL: 'https://github.com/FlagBrew/local-gpss/releases/latest/download/linux64.zip'
+    build: .
     image: local-gpss:latest
     container_name: local-gpss
     restart: always
     ports:
-      - "13579:13579"   # host:container
+      - "13579:13579"
     environment:
       - GPSS_HOST=0.0.0.0
       - GPSS_PORT=13579
