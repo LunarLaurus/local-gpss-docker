@@ -11,8 +11,7 @@
       - GPSS_HOST=0.0.0.0
       - GPSS_PORT=13579
     volumes:
-      - local-gpss-data:/app
+      - local-gpss-data:/app/data
 
 volumes:
   local-gpss-data: {}
-
