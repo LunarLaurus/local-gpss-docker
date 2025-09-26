@@ -3,10 +3,10 @@ services:
     build:
       context: .
       args:
-        RELEASE_URL: "https://github.com/FlagBrew/local-gpss/releases/latest/download/linux64.zip"
+        RELEASE_URL: 'https://github.com/FlagBrew/local-gpss/releases/latest/download/linux64.zip'
     image: local-gpss:latest
     container_name: local-gpss
-    restart: unless-stopped
+    restart: always
     ports:
       - "13579:13579"   # host:container
     environment:
