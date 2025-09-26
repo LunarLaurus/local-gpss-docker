@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
 ENV APP_DIR=/app
 ENV DATA_DIR=/app/data
