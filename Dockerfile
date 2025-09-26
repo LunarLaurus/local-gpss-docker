@@ -1,13 +1,11 @@
 # Base runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-
-# Add non-root user
-RUN useradd -m appuser
-USER appuser
-
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
+
+# Create non-root user (UID 1000)
+RUN useradd -m -u 1000 appuser
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
@@ -39,11 +37,14 @@ COPY --from=publish /app/publish .
 # Create default local-gpss.json in the same folder as the DLL
 RUN echo '{"ip":"0.0.0.0","port":13579}' > /app/local-gpss.json
 
-# Ensure the non-root user owns the folder so runtime can write data
-RUN chown -R appuser:appuser /app
+# Ensure appuser owns the folder
+RUN chown -R 1000:1000 /app
+
+# Switch to non-root user
+USER 1000
 
 # Make the folder a Docker volume so data persists
 VOLUME ["/app"]
 
-# Run the DLL as non-root user
+# Run the DLL
 ENTRYPOINT ["dotnet", "local-gpss.dll"]
