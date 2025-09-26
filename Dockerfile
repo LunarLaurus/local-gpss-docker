@@ -1,25 +1,30 @@
-# Use .NET 9 runtime for final image
+# Base runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+
+# Add non-root user
+RUN useradd -m appuser
+USER appuser
+
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-# Use .NET 9 SDK for building
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Install git to clone the repo
+# Install git
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Clone the official Local GPSS repo
+# Clone repo
 RUN git clone --branch master https://github.com/FlagBrew/local-gpss.git .
 
-# Restore and build the project
+# Restore and build
 RUN dotnet restore "local-gpss.csproj"
 RUN dotnet build "local-gpss.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Publish the project
+# Publish
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "local-gpss.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
@@ -27,10 +32,18 @@ RUN dotnet publish "local-gpss.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 # Final image
 FROM base AS final
 WORKDIR /app
+
+# Copy published files from build
 COPY --from=publish /app/publish .
-# Optional: create a persistent data folder
+
+# Create persistent data folder
 RUN mkdir -p /app/data
+
+# Ensure appuser owns data folder
+RUN chown -R appuser:appuser /app/data
+
+# Make it a Docker volume
 VOLUME ["/app/data"]
 
-# Run the DLL
+# Run the DLL as non-root user
 ENTRYPOINT ["dotnet", "local-gpss.dll"]
